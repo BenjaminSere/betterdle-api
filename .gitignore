@@ -60,6 +60,8 @@ out/
 src/main/resources/static/data/images/
 src/main/resources/static/data/champions/
 
+.env
+
 Annie.json
 communitydragon.json
 
