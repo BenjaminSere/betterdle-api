@@ -31,9 +31,7 @@ pom.xml.restoreBackup
 release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
-.mvn/wrapper/maven-wrapper.jar
-.mvn/jvm.config
-.mvn/maven.config
+.mvn/*
 
 # IntelliJ IDEA
 .idea/
