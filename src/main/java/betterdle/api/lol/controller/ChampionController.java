@@ -6,6 +6,12 @@ import betterdle.api.lol.model.Champion;
 import betterdle.api.lol.model.ChampionSpell;
 import betterdle.api.lol.model.ChampionSkin;
 import betterdle.api.lol.repository.ChampionRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -22,45 +28,81 @@ import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/v1/{gameStr}/{localeStr}/champions")
+@Tag(name = "Champions", description = "Endpoints pour gérer les champions League of Legends")
 public class ChampionController {
 
     @Autowired
     private ChampionRepository championRepository;
 
     @GetMapping
-    public Page<Champion> findAll(@PathVariable String gameStr,
-            @PathVariable String localeStr,
+    @Operation(summary = "Récupérer tous les champions", description = "Retourne une liste paginée de tous les champions")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Liste des champions récupérée avec succès"),
+        @ApiResponse(responseCode = "404", description = "Jeu ou langue non supporté(e)")
+    })
+    public Page<Champion> findAll(
+            @Parameter(description = "Identifiant du jeu (ex: lol)", required = true) @PathVariable String gameStr,
+            @Parameter(description = "Code de la langue (ex: fr_FR, en_US)", required = true) @PathVariable String localeStr,
             Pageable pageable) {
         validateParams(gameStr, localeStr);
         return championRepository.findAll(pageable);
     }
 
     @GetMapping("/{name}")
-    public Champion findByName(@PathVariable String gameStr, @PathVariable String localeStr,
-            @PathVariable String name) {
+    @Operation(summary = "Récupérer un champion par nom", description = "Retourne les détails d'un champion spécifique")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Champion trouvé"),
+        @ApiResponse(responseCode = "404", description = "Champion, jeu ou langue non trouvé(e)")
+    })
+    public Champion findByName(
+            @Parameter(description = "Identifiant du jeu", required = true) @PathVariable String gameStr,
+            @Parameter(description = "Code de la langue", required = true) @PathVariable String localeStr,
+            @Parameter(description = "Nom du champion", required = true, example = "Ahri") @PathVariable String name) {
         validateParams(gameStr, localeStr);
         return getChampionOr404(name);
     }
 
     @GetMapping(value = "/{name}/images/icon", produces = "image/webp")
-    public ResponseEntity<Resource> getIcon(@PathVariable String gameStr, @PathVariable String localeStr,
-            @PathVariable String name) {
+    @Operation(summary = "Récupérer l'icône du champion", description = "Retourne l'image de l'icône du champion au format WebP")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
+        @ApiResponse(responseCode = "404", description = "Champion ou image non trouvé(e)")
+    })
+    public ResponseEntity<Resource> getIcon(
+            @Parameter(description = "Identifiant du jeu", required = true) @PathVariable String gameStr,
+            @Parameter(description = "Code de la langue", required = true) @PathVariable String localeStr,
+            @Parameter(description = "Nom du champion", required = true) @PathVariable String name) {
         validateParams(gameStr, localeStr);
         Champion c = getChampionOr404(name);
         return serveImage(c.getIconURL());
     }
 
     @GetMapping(value = "/{name}/images/passive", produces = "image/webp")
-    public ResponseEntity<Resource> getPassive(@PathVariable String gameStr, @PathVariable String localeStr,
-            @PathVariable String name) {
+    @Operation(summary = "Récupérer l'icône de la compétence passive", description = "Retourne l'image de la compétence passive du champion au format WebP")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
+        @ApiResponse(responseCode = "404", description = "Champion ou image non trouvé(e)")
+    })
+    public ResponseEntity<Resource> getPassive(
+            @Parameter(description = "Identifiant du jeu", required = true) @PathVariable String gameStr,
+            @Parameter(description = "Code de la langue", required = true) @PathVariable String localeStr,
+            @Parameter(description = "Nom du champion", required = true) @PathVariable String name) {
         validateParams(gameStr, localeStr);
         Champion c = getChampionOr404(name);
         return serveImage(c.getPassiveIconURL());
     }
 
     @GetMapping(value = "/{name}/images/spells/{spellKey}", produces = "image/webp")
-    public ResponseEntity<Resource> getSpell(@PathVariable String gameStr, @PathVariable String localeStr,
-            @PathVariable String name, @PathVariable String spellKey) {
+    @Operation(summary = "Récupérer l'icône d'une compétence", description = "Retourne l'image d'une compétence spécifique du champion (Q, W, E, R)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
+        @ApiResponse(responseCode = "404", description = "Champion, compétence ou image non trouvé(e)")
+    })
+    public ResponseEntity<Resource> getSpell(
+            @Parameter(description = "Identifiant du jeu", required = true) @PathVariable String gameStr,
+            @Parameter(description = "Code de la langue", required = true) @PathVariable String localeStr,
+            @Parameter(description = "Nom du champion", required = true) @PathVariable String name,
+            @Parameter(description = "Touche de la compétence", required = true, example = "Q") @PathVariable String spellKey) {
         validateParams(gameStr, localeStr);
         Champion c = getChampionOr404(name);
         ChampionSpell spell = c.getSpells().stream()
@@ -71,8 +113,16 @@ public class ChampionController {
     }
 
     @GetMapping(value = "/{name}/images/loading", produces = "image/webp")
-    public ResponseEntity<Resource> getLoading(@PathVariable String gameStr, @PathVariable String localeStr,
-            @PathVariable String name, @RequestParam(defaultValue = "0") int skinNum) {
+    @Operation(summary = "Récupérer l'image de chargement d'un skin", description = "Retourne l'image de chargement de jeu pour un skin spécifique")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
+        @ApiResponse(responseCode = "404", description = "Champion, skin ou image non trouvé(e)")
+    })
+    public ResponseEntity<Resource> getLoading(
+            @Parameter(description = "Identifiant du jeu", required = true) @PathVariable String gameStr,
+            @Parameter(description = "Code de la langue", required = true) @PathVariable String localeStr,
+            @Parameter(description = "Nom du champion", required = true) @PathVariable String name,
+            @Parameter(description = "Numéro du skin", example = "0") @RequestParam(defaultValue = "0") int skinNum) {
         validateParams(gameStr, localeStr);
         Champion c = getChampionOr404(name);
         ChampionSkin skin = c.getSkins().stream()
@@ -83,8 +133,16 @@ public class ChampionController {
     }
 
     @GetMapping(value = "/{name}/images/splash", produces = "image/webp")
-    public ResponseEntity<Resource> getSplash(@PathVariable String gameStr, @PathVariable String localeStr,
-            @PathVariable String name, @RequestParam(defaultValue = "0") int skinNum) {
+    @Operation(summary = "Récupérer l'image splash d'un skin", description = "Retourne l'image splash (grand format) pour un skin spécifique")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
+        @ApiResponse(responseCode = "404", description = "Champion, skin ou image non trouvé(e)")
+    })
+    public ResponseEntity<Resource> getSplash(
+            @Parameter(description = "Identifiant du jeu", required = true) @PathVariable String gameStr,
+            @Parameter(description = "Code de la langue", required = true) @PathVariable String localeStr,
+            @Parameter(description = "Nom du champion", required = true) @PathVariable String name,
+            @Parameter(description = "Numéro du skin", example = "0") @RequestParam(defaultValue = "0") int skinNum) {
         validateParams(gameStr, localeStr);
         Champion c = getChampionOr404(name);
         ChampionSkin skin = c.getSkins().stream()

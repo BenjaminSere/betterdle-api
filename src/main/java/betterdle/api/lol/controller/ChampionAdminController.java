@@ -5,6 +5,11 @@ import betterdle.api.dto.ChampionPatchDTO;
 import betterdle.api.dto.SyncResultDTO;
 import betterdle.api.lol.model.Champion;
 import betterdle.api.lol.service.ChampionAdminService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
@@ -20,6 +25,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/admin/lol/{localeStr}/champions")
+@Tag(name = "Administration", description = "Endpoints d'administration pour la gestion des champions")
 public class ChampionAdminController {
 
     private final ChampionAdminService adminService;
@@ -35,7 +41,14 @@ public class ChampionAdminController {
      * vide).
      */
     @GetMapping("/incomplete")
-    public List<Champion> getIncompleteChampions(@PathVariable String localeStr) {
+    @Operation(summary = "Récupérer les champions incomplets", 
+               description = "Retourne la liste des champions ayant au moins un champ incomplet (null ou vide)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Liste des champions incomplets récupérée avec succès"),
+        @ApiResponse(responseCode = "404", description = "Langue non supportée")
+    })
+    public List<Champion> getIncompleteChampions(
+            @Parameter(description = "Code de la langue", required = true) @PathVariable String localeStr) {
         validateLocale(localeStr);
         return adminService.getIncompleteChampions();
     }
@@ -46,7 +59,14 @@ public class ChampionAdminController {
      * sync).
      */
     @GetMapping("/stats")
-    public SyncResultDTO getStats(@PathVariable String localeStr) {
+    @Operation(summary = "Récupérer les statistiques", 
+               description = "Retourne les statistiques actuelles (total, complets, incomplets, dernière synchronisation)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Statistiques récupérées avec succès"),
+        @ApiResponse(responseCode = "404", description = "Langue non supportée")
+    })
+    public SyncResultDTO getStats(
+            @Parameter(description = "Code de la langue", required = true) @PathVariable String localeStr) {
         validateLocale(localeStr);
         return adminService.getStats();
     }
@@ -57,7 +77,15 @@ public class ChampionAdminController {
      * Logique PATCH : ne met à jour que les champs null existants.
      */
     @PostMapping("/sync")
-    public SyncResultDTO synchronize(@PathVariable String localeStr) {
+    @Operation(summary = "Synchroniser les données", 
+               description = "Déclenche manuellement la synchronisation avec le Wiki LoL. Ne met à jour que les champs null existants")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Synchronisation réussie"),
+        @ApiResponse(responseCode = "404", description = "Langue non supportée"),
+        @ApiResponse(responseCode = "500", description = "Erreur lors de la synchronisation")
+    })
+    public SyncResultDTO synchronize(
+            @Parameter(description = "Code de la langue", required = true) @PathVariable String localeStr) {
         Locale locale = validateLocale(localeStr);
         try {
             return adminService.synchronize(locale);
@@ -74,9 +102,15 @@ public class ChampionAdminController {
      * Seuls les champs fournis dans le body seront modifiés.
      */
     @PatchMapping("/{id}")
+    @Operation(summary = "Mettre à jour un champion", 
+               description = "Met à jour manuellement un champion (édition partielle). Seuls les champs fournis seront modifiés")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Champion mis à jour avec succès"),
+        @ApiResponse(responseCode = "404", description = "Champion ou langue non trouvé(e)")
+    })
     public Champion patchChampion(
-            @PathVariable String localeStr,
-            @PathVariable Integer id,
+            @Parameter(description = "Code de la langue", required = true) @PathVariable String localeStr,
+            @Parameter(description = "ID du champion", required = true) @PathVariable Integer id,
             @RequestBody ChampionPatchDTO dto) {
         validateLocale(localeStr);
         try {
@@ -91,9 +125,16 @@ public class ChampionAdminController {
      * Force le rafraîchissement des données (métadonnées + assets) d'un champion.
      */
     @PostMapping("/{id}/refresh")
+    @Operation(summary = "Rafraîchir un champion", 
+               description = "Force le rafraîchissement des données (métadonnées + assets) d'un champion spécifique")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Champion rafraîchi avec succès"),
+        @ApiResponse(responseCode = "404", description = "Champion ou langue non trouvé(e)"),
+        @ApiResponse(responseCode = "500", description = "Erreur lors du rafraîchissement")
+    })
     public Champion refreshChampion(
-            @PathVariable String localeStr,
-            @PathVariable Integer id) {
+            @Parameter(description = "Code de la langue", required = true) @PathVariable String localeStr,
+            @Parameter(description = "ID du champion", required = true) @PathVariable Integer id) {
         Locale locale = validateLocale(localeStr);
         try {
             return adminService.refreshChampion(id, locale);
