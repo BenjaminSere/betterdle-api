@@ -1,7 +1,11 @@
-package betterdle.api;
+package betterdle.api.lol.controller;
 
 import betterdle.api.config.Game;
 import betterdle.api.config.Locale;
+import betterdle.api.lol.model.Champion;
+import betterdle.api.lol.model.ChampionSpell;
+import betterdle.api.lol.model.ChampionSkin;
+import betterdle.api.lol.repository.ChampionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -18,12 +22,10 @@ import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/v1/{gameStr}/{localeStr}/champions")
-public class ChampionContoller {
+public class ChampionController {
 
     @Autowired
     private ChampionRepository championRepository;
-
-    private final String IMAGE_ROOT = "src/main/resources/static";
 
     @GetMapping
     public Page<Champion> findAll(@PathVariable String gameStr,
@@ -61,7 +63,7 @@ public class ChampionContoller {
             @PathVariable String name, @PathVariable String spellKey) {
         validateParams(gameStr, localeStr);
         Champion c = getChampionOr404(name);
-        Champion.Spell spell = c.getSpells().stream()
+        ChampionSpell spell = c.getSpells().stream()
                 .filter(s -> s.getImageUrl().contains("/" + spellKey.toUpperCase() + ".webp"))
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sort non trouvé"));
@@ -73,7 +75,7 @@ public class ChampionContoller {
             @PathVariable String name, @RequestParam(defaultValue = "0") int skinNum) {
         validateParams(gameStr, localeStr);
         Champion c = getChampionOr404(name);
-        Champion.Skin skin = c.getSkins().stream()
+        ChampionSkin skin = c.getSkins().stream()
                 .filter(s -> s.getNum() == skinNum)
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Skin non trouvé"));
@@ -85,7 +87,7 @@ public class ChampionContoller {
             @PathVariable String name, @RequestParam(defaultValue = "0") int skinNum) {
         validateParams(gameStr, localeStr);
         Champion c = getChampionOr404(name);
-        Champion.Skin skin = c.getSkins().stream()
+        ChampionSkin skin = c.getSkins().stream()
                 .filter(s -> s.getNum() == skinNum)
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Skin non trouvé"));
@@ -114,9 +116,9 @@ public class ChampionContoller {
     }
 
     private ResponseEntity<Resource> serveImage(String publicPath) {
-        // publicPath ressemble à "/data/images/..."
-        // On le concatène au dossier static physique
-        Path path = Paths.get(IMAGE_ROOT + publicPath);
+        // publicPath ressemble à "data/images/..."
+        // On le considère comme chemin relatif à la racine du projet
+        Path path = Paths.get(publicPath);
         Resource resource = new FileSystemResource(path);
 
         if (!resource.exists()) {
