@@ -64,6 +64,7 @@ out/
 # ========================
 .DS_Store
 Thumbs.db
+betterdle.dump
 
 # ========================
 # Environnement / Secrets
