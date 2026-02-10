@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: betterdle-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-betterdle}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-moi}
+      POSTGRES_DB: ${POSTGRES_DB:-betterdle}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - betterdle-pg-data:/var/lib/postgresql/data
+      - ./docker/init-db:/docker-entrypoint-initdb.d
+    networks:
+      - betterdle-network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-betterdle}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: betterdle-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-betterdle}
+      POSTGRES_USER: ${POSTGRES_USER:-betterdle}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-moi}
+      API_PORT: ${API_PORT:-8080}
+    ports:
+      - "${API_PORT:-8080}:8080"
+    networks:
+      - betterdle-network
+    restart: on-failure
+
+volumes:
+  betterdle-pg-data:
+
+
+networks:
+  betterdle-network:
+    driver: bridge
