@@ -37,8 +37,8 @@ public class ChampionController {
     @GetMapping
     @Operation(summary = "Récupérer tous les champions", description = "Retourne une liste paginée de tous les champions")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Liste des champions récupérée avec succès"),
-        @ApiResponse(responseCode = "404", description = "Jeu ou langue non supporté(e)")
+            @ApiResponse(responseCode = "200", description = "Liste des champions récupérée avec succès"),
+            @ApiResponse(responseCode = "404", description = "Jeu ou langue non supporté(e)")
     })
     public Page<Champion> findAll(
             @Parameter(description = "Identifiant du jeu (ex: lol)", required = true) @PathVariable String gameStr,
@@ -51,8 +51,8 @@ public class ChampionController {
     @GetMapping("/{name}")
     @Operation(summary = "Récupérer un champion par nom", description = "Retourne les détails d'un champion spécifique")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Champion trouvé"),
-        @ApiResponse(responseCode = "404", description = "Champion, jeu ou langue non trouvé(e)")
+            @ApiResponse(responseCode = "200", description = "Champion trouvé"),
+            @ApiResponse(responseCode = "404", description = "Champion, jeu ou langue non trouvé(e)")
     })
     public Champion findByName(
             @Parameter(description = "Identifiant du jeu", required = true) @PathVariable String gameStr,
@@ -65,8 +65,8 @@ public class ChampionController {
     @GetMapping(value = "/{name}/images/icon", produces = "image/webp")
     @Operation(summary = "Récupérer l'icône du champion", description = "Retourne l'image de l'icône du champion au format WebP")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
-        @ApiResponse(responseCode = "404", description = "Champion ou image non trouvé(e)")
+            @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
+            @ApiResponse(responseCode = "404", description = "Champion ou image non trouvé(e)")
     })
     public ResponseEntity<Resource> getIcon(
             @Parameter(description = "Identifiant du jeu", required = true) @PathVariable String gameStr,
@@ -80,8 +80,8 @@ public class ChampionController {
     @GetMapping(value = "/{name}/images/passive", produces = "image/webp")
     @Operation(summary = "Récupérer l'icône de la compétence passive", description = "Retourne l'image de la compétence passive du champion au format WebP")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
-        @ApiResponse(responseCode = "404", description = "Champion ou image non trouvé(e)")
+            @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
+            @ApiResponse(responseCode = "404", description = "Champion ou image non trouvé(e)")
     })
     public ResponseEntity<Resource> getPassive(
             @Parameter(description = "Identifiant du jeu", required = true) @PathVariable String gameStr,
@@ -95,8 +95,8 @@ public class ChampionController {
     @GetMapping(value = "/{name}/images/spells/{spellKey}", produces = "image/webp")
     @Operation(summary = "Récupérer l'icône d'une compétence", description = "Retourne l'image d'une compétence spécifique du champion (Q, W, E, R)")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
-        @ApiResponse(responseCode = "404", description = "Champion, compétence ou image non trouvé(e)")
+            @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
+            @ApiResponse(responseCode = "404", description = "Champion, compétence ou image non trouvé(e)")
     })
     public ResponseEntity<Resource> getSpell(
             @Parameter(description = "Identifiant du jeu", required = true) @PathVariable String gameStr,
@@ -115,8 +115,8 @@ public class ChampionController {
     @GetMapping(value = "/{name}/images/loading", produces = "image/webp")
     @Operation(summary = "Récupérer l'image de chargement d'un skin", description = "Retourne l'image de chargement de jeu pour un skin spécifique")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
-        @ApiResponse(responseCode = "404", description = "Champion, skin ou image non trouvé(e)")
+            @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
+            @ApiResponse(responseCode = "404", description = "Champion, skin ou image non trouvé(e)")
     })
     public ResponseEntity<Resource> getLoading(
             @Parameter(description = "Identifiant du jeu", required = true) @PathVariable String gameStr,
@@ -135,8 +135,8 @@ public class ChampionController {
     @GetMapping(value = "/{name}/images/splash", produces = "image/webp")
     @Operation(summary = "Récupérer l'image splash d'un skin", description = "Retourne l'image splash (grand format) pour un skin spécifique")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
-        @ApiResponse(responseCode = "404", description = "Champion, skin ou image non trouvé(e)")
+            @ApiResponse(responseCode = "200", description = "Image récupérée avec succès", content = @Content(mediaType = "image/webp")),
+            @ApiResponse(responseCode = "404", description = "Champion, skin ou image non trouvé(e)")
     })
     public ResponseEntity<Resource> getSplash(
             @Parameter(description = "Identifiant du jeu", required = true) @PathVariable String gameStr,
@@ -174,9 +174,8 @@ public class ChampionController {
     }
 
     private ResponseEntity<Resource> serveImage(String publicPath) {
-        // publicPath ressemble à "data/images/..."
-        // On le considère comme chemin relatif à la racine du projet
-        Path path = Paths.get(publicPath);
+        String relativePath = publicPath.startsWith("/") ? publicPath.substring(1) : publicPath;
+        Path path = Paths.get(relativePath);
         Resource resource = new FileSystemResource(path);
 
         if (!resource.exists()) {
