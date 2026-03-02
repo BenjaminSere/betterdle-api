@@ -1,8 +1,10 @@
 package betterdle.api.lol.service;
 
 import betterdle.api.config.Locale;
-import betterdle.api.core.model.GlobalConfiguration;
-import betterdle.api.core.repository.GlobalConfigurationRepository;
+import betterdle.api.core.repository.GameVersionRepository;
+import betterdle.api.core.model.GameVersion;
+import betterdle.api.core.service.GameDataInitializer;
+import betterdle.api.config.Game;
 import betterdle.api.lol.model.Champion;
 import betterdle.api.lol.model.enums.SyncStatus;
 import betterdle.api.lol.repository.ChampionRepository;
@@ -25,17 +27,16 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class LolDataInitializer {
+public class LolDataInitializer implements GameDataInitializer {
 
     private final ChampionRepository repository;
     private final DDragonService dDragonService;
-    private final GlobalConfigurationRepository configRepository;
+    private final GameVersionRepository versionRepository;
     private final ChampionSyncService championSyncService;
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private static final String VERSION_KEY = "LOL_VERSION";
     private static final int THREAD_POOL_SIZE = 10;
 
+    @Override
     public void init(Locale locale, boolean onlyFirst) {
         try {
             String remoteVersion = dDragonService.fetchLatestVersion();
@@ -164,14 +165,14 @@ public class LolDataInitializer {
     }
 
     public String getCurrentVersion() {
-        return configRepository.findById(VERSION_KEY)
-                .map(GlobalConfiguration::getConfValue)
+        return versionRepository.findById(Game.LOL)
+                .map(GameVersion::getVersion)
                 .orElse("0.0.0");
     }
 
     private void updateCurrentVersion(String version) {
-        GlobalConfiguration config = new GlobalConfiguration(VERSION_KEY, version);
-        configRepository.save(config);
+        GameVersion gameVersion = new GameVersion(Game.LOL, version);
+        versionRepository.save(gameVersion);
     }
 
     public String fetchLatestVersion() throws IOException {

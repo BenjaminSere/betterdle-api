@@ -1,0 +1,275 @@
+{
+    "roles": {
+        "guest": {
+            "description": "Utilisateur non authentifié",
+            "permissions": {
+                "read": [
+                    {
+                        "action": "view_dle_list",
+                        "description": "Voir la liste des DLE disponibles sur la plateforme."
+                    },
+                    {
+                        "action": "view_dle_details",
+                        "description": "Voir les détails d’un DLE (règles, difficulté, description)."
+                    },
+                    {
+                        "action": "view_global_leaderboard",
+                        "description": "Consulter le classement mondial des joueurs."
+                    },
+                    {
+                        "action": "view_dle_leaderboard",
+                        "description": "Consulter le classement spécifique à un DLE."
+                    },
+                    {
+                        "action": "search_player",
+                        "description": "Rechercher un joueur via la barre de recherche."
+                    },
+                    {
+                        "action": "view_public_profile",
+                        "description": "Consulter le profil public d’un joueur (rang, streak, statistiques visibles)."
+                    },
+                    {
+                        "action": "view_home_public",
+                        "description": "Accéder à la page d’accueil en mode public."
+                    },
+                    {
+                        "action": "view_game_wiki",
+                        "description": "Accéder à la page wiki d'un jeu si le wiki est disponible."
+                    }
+                ],
+                "actions": [
+                    {
+                        "action": "change_language",
+                        "description": "Changer la langue de l’interface."
+                    },
+                    {
+                        "action": "toggle_theme",
+                        "description": "Activer ou désactiver le mode clair / sombre."
+                    },
+                    {
+                        "action": "access_login_page",
+                        "description": "Accéder à la page de connexion."
+                    },
+                    {
+                        "action": "access_register_page",
+                        "description": "Accéder à la page d’inscription."
+                    }
+                ],
+                "restricted": [
+                    {
+                        "action": "play_dle",
+                        "description": "Jouer un DLE."
+                    },
+                    {
+                        "action": "submit_participation",
+                        "description": "Enregistrer une participation quotidienne."
+                    },
+                    {
+                        "action": "follow_dle",
+                        "description": "S’abonner à un DLE."
+                    },
+                    {
+                        "action": "unfollow_dle",
+                        "description": "Se désabonner d’un DLE."
+                    },
+                    {
+                        "action": "view_personal_rank",
+                        "description": "Voir son propre classement."
+                    },
+                    {
+                        "action": "view_personal_streak",
+                        "description": "Voir ses propres streaks."
+                    },
+                    {
+                        "action": "access_private_dashboard",
+                        "description": "Accéder au tableau de bord personnalisé."
+                    }
+                ]
+            }
+        },
+        "user": {
+            "description": "Utilisateur authentifié",
+            "inherits": "guest",
+            "permissions": {
+                "account": [
+                    {
+                        "action": "update_profile",
+                        "description": "Modifier ses informations de profil."
+                    },
+                    {
+                        "action": "link_oauth_provider",
+                        "description": "Associer un compte OAuth (Google ou GitHub)."
+                    },
+                    {
+                        "action": "unlink_oauth_provider",
+                        "description": "Dissocier un compte OAuth."
+                    },
+                    {
+                        "action": "delete_account",
+                        "description": "Supprimer définitivement son compte."
+                    },
+                    {
+                        "action": "update_preferences",
+                        "description": "Modifier ses préférences (langue, thème)."
+                    }
+                ],
+                "dle": [
+                    {
+                        "action": "play_dle",
+                        "description": "Jouer un DLE intégré dans la plateforme."
+                    },
+                    {
+                        "action": "submit_daily_participation",
+                        "description": "Enregistrer son résultat quotidien pour un DLE."
+                    },
+                    {
+                        "action": "view_daily_result",
+                        "description": "Consulter son résultat du jour."
+                    },
+                    {
+                        "action": "follow_dle",
+                        "description": "S’abonner à un DLE pour suivre ses performances."
+                    },
+                    {
+                        "action": "unfollow_dle",
+                        "description": "Se désabonner d’un DLE."
+                    },
+                    {
+                        "action": "view_followed_dles",
+                        "description": "Voir la liste des DLE suivis."
+                    },
+                    {
+                        "action": "view_unplayed_dles_today",
+                        "description": "Voir les DLE suivis non encore joués aujourd’hui."
+                    }
+                ],
+                "competition": [
+                    {
+                        "action": "view_global_rank",
+                        "description": "Voir son classement mondial."
+                    },
+                    {
+                        "action": "view_dle_rank",
+                        "description": "Voir son classement pour un DLE spécifique."
+                    },
+                    {
+                        "action": "view_rank_history",
+                        "description": "Consulter l’évolution de son classement."
+                    },
+                    {
+                        "action": "view_current_streak_per_dle",
+                        "description": "Voir sa streak actuelle pour chaque DLE."
+                    },
+                    {
+                        "action": "view_best_streak_per_dle",
+                        "description": "Voir sa meilleure streak enregistrée."
+                    },
+                    {
+                        "action": "appear_in_leaderboards",
+                        "description": "Apparaître dans les classements publics."
+                    }
+                ],
+                "dashboard": [
+                    {
+                        "action": "access_private_dashboard",
+                        "description": "Accéder à la page d’accueil personnalisée."
+                    },
+                    {
+                        "action": "view_personal_competitive_status",
+                        "description": "Voir son statut compétitif global (rangs, streaks, DLE à jouer)."
+                    }
+                ]
+            }
+        },
+        "admin": {
+            "description": "Administrateur",
+            "inherits": "user",
+            "permissions": {
+                "dle_management": [
+                    {
+                        "action": "create_dle",
+                        "description": "Créer un nouveau DLE."
+                    },
+                    {
+                        "action": "update_dle",
+                        "description": "Modifier les paramètres d’un DLE."
+                    },
+                    {
+                        "action": "activate_dle",
+                        "description": "Activer un DLE pour le rendre jouable."
+                    },
+                    {
+                        "action": "deactivate_dle",
+                        "description": "Désactiver temporairement un DLE."
+                    },
+                    {
+                        "action": "delete_dle",
+                        "description": "Supprimer définitivement un DLE."
+                    },
+                    {
+                        "action": "configure_dle_scoring",
+                        "description": "Configurer le système de score d’un DLE."
+                    }
+                ],
+                "moderation": [
+                    {
+                        "action": "suspend_user",
+                        "description": "Suspendre temporairement un utilisateur."
+                    },
+                    {
+                        "action": "ban_user",
+                        "description": "Bannir définitivement un utilisateur."
+                    },
+                    {
+                        "action": "reset_user_streak",
+                        "description": "Réinitialiser la streak d’un utilisateur."
+                    },
+                    {
+                        "action": "delete_participation",
+                        "description": "Supprimer une participation quotidienne."
+                    },
+                    {
+                        "action": "adjust_user_score",
+                        "description": "Modifier manuellement le score d’un utilisateur."
+                    },
+                    {
+                        "action": "remove_user_from_leaderboard",
+                        "description": "Retirer un utilisateur d’un classement."
+                    }
+                ],
+                "supervision": [
+                    {
+                        "action": "view_platform_statistics",
+                        "description": "Consulter les statistiques globales de la plateforme."
+                    },
+                    {
+                        "action": "view_dle_activity_metrics",
+                        "description": "Analyser l’activité et la participation par DLE."
+                    },
+                    {
+                        "action": "force_recalculate_rankings",
+                        "description": "Forcer le recalcul complet des classements."
+                    },
+                    {
+                        "action": "access_system_logs",
+                        "description": "Accéder aux journaux techniques du système."
+                    }
+                ],
+                "security": [
+                    {
+                        "action": "manage_roles",
+                        "description": "Attribuer ou modifier les rôles des utilisateurs."
+                    },
+                    {
+                        "action": "force_password_reset",
+                        "description": "Forcer la réinitialisation du mot de passe d’un utilisateur."
+                    },
+                    {
+                        "action": "view_security_events",
+                        "description": "Consulter les événements liés à la sécurité."
+                    }
+                ]
+            }
+        }
+    }
+}

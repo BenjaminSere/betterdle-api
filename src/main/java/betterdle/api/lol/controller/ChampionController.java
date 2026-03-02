@@ -17,11 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import betterdle.api.exceptions.ResourceNotFoundException;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -122,8 +121,7 @@ public class ChampionController {
                 ChampionSpell spell = c.getSpells().stream()
                                 .filter(s -> s.getImageUrl().contains("/" + spellKey.toUpperCase() + ".webp"))
                                 .findFirst()
-                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                                "Sort non trouvé"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Sort non trouvé"));
                 return serveImage(spell.getImageUrl());
         }
 
@@ -143,8 +141,7 @@ public class ChampionController {
                 ChampionSkin skin = c.getSkins().stream()
                                 .filter(s -> s.getNum() == skinNum)
                                 .findFirst()
-                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                                "Skin non trouvé"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Skin non trouvé"));
                 return serveImage(skin.getLoadingUrl());
         }
 
@@ -165,8 +162,7 @@ public class ChampionController {
                 ChampionSkin skin = c.getSkins().stream()
                                 .filter(s -> s.getNum() == skinNum)
                                 .findFirst()
-                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                                "Skin non trouvé"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Skin non trouvé"));
                 return serveImage(skin.getSplashUrl());
         }
 
@@ -177,19 +173,18 @@ public class ChampionController {
                 Locale locale = Locale.fromId(localeStr);
 
                 if (game == null)
-                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Jeu non supporté");
+                        throw new ResourceNotFoundException("Jeu non supporté");
                 if (locale == null)
-                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Langue non supportée");
+                        throw new ResourceNotFoundException("Langue non supportée");
 
                 // Pour l'instant on ne gère que LoL dans ce repository
                 if (game != Game.LOL)
-                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ressource indisponible pour ce jeu");
+                        throw new ResourceNotFoundException("Ressource indisponible pour ce jeu");
         }
 
         private Champion getChampionOr404(String name) {
                 return championRepository.findByNameIgnoreCase(name)
-                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                                "Champion non trouvé"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Champion non trouvé"));
         }
 
         private ResponseEntity<Resource> serveImage(String publicPath) {
@@ -197,8 +192,7 @@ public class ChampionController {
                 Path path = Paths.get(relativePath);
 
                 if (!java.nio.file.Files.exists(path)) {
-                        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                        "Fichier image manquant sur le serveur");
+                        throw new ResourceNotFoundException("Fichier image manquant sur le serveur");
                 }
 
                 try {
@@ -207,8 +201,7 @@ public class ChampionController {
                                         .contentType(MediaType.parseMediaType("image/webp"))
                                         .body(resource);
                 } catch (IOException e) {
-                        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                                        "Erreur lors de la lecture de l'image");
+                        throw new RuntimeException("Erreur lors de la lecture de l'image");
                 }
         }
 }

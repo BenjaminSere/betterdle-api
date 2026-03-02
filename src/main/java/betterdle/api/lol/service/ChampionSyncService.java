@@ -1,5 +1,6 @@
 package betterdle.api.lol.service;
 
+import betterdle.api.config.Game;
 import betterdle.api.config.Locale;
 import betterdle.api.lol.model.Champion;
 import betterdle.api.lol.model.enums.SyncStatus;
@@ -33,7 +34,8 @@ public class ChampionSyncService {
             JsonNode detail = dDragonService.fetchChampionDetail(locale.getId(), version, id);
 
             // Update details (description, assets paths)
-            String apiPathPrefix = "data/images/lol/" + locale.getId() + "/champions/" + id + "/";
+            String apiPathPrefix = String.format("data/images/%s/%s/champions/%s/", Game.LOL.getId(), locale.getId(),
+                    id);
             championMapper.updateDetails(champion, detail, version, apiPathPrefix);
 
             champion.setVersion(version);
@@ -54,8 +56,8 @@ public class ChampionSyncService {
         try {
             JsonNode detail = dDragonService.fetchChampionDetail(locale.getId(), version, id);
 
-            String relativePath = "data/images/lol/" + locale.getId() + "/champions/";
-            String localBaseDir = "data/images/lol/" + locale.getId() + "/champions/";
+            String relativePath = String.format("data/images/%s/%s/champions/", Game.LOL.getId(), locale.getId());
+            String localBaseDir = relativePath;
             String apiBaseDir = "/" + relativePath;
             String localDir = localBaseDir + id + "/";
             String apiPath = apiBaseDir + id + "/";
