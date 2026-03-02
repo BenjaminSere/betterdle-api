@@ -28,7 +28,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.springframework.data.domain.PageRequest;
-import io.swagger.v3.oas.annotations.Hidden;
 
 @RestController
 @RequestMapping("/api/v1/{gameStr}/{localeStr}/champions")
@@ -72,7 +71,6 @@ public class ChampionController {
                 return getChampionOr404(name);
         }
 
-        @Hidden
         @GetMapping(value = "/{name}/images/icon", produces = "image/webp")
         @Operation(summary = "Récupérer l'icône du champion", description = "Retourne l'image de l'icône du champion au format WebP")
         @ApiResponses(value = {
@@ -88,7 +86,6 @@ public class ChampionController {
                 return serveImage(c.getIconURL());
         }
 
-        @Hidden
         @GetMapping(value = "/{name}/images/passive", produces = "image/webp")
         @Operation(summary = "Récupérer l'icône de la compétence passive", description = "Retourne l'image de la compétence passive du champion au format WebP")
         @ApiResponses(value = {
@@ -104,7 +101,6 @@ public class ChampionController {
                 return serveImage(c.getPassiveIconURL());
         }
 
-        @Hidden
         @GetMapping(value = "/{name}/images/spells/{spellKey}", produces = "image/webp")
         @Operation(summary = "Récupérer l'icône d'une compétence", description = "Retourne l'image d'une compétence spécifique du champion (Q, W, E, R)")
         @ApiResponses(value = {
@@ -145,7 +141,6 @@ public class ChampionController {
                 return serveImage(skin.getLoadingUrl());
         }
 
-        @Hidden
         @GetMapping(value = "/{name}/images/splash", produces = "image/webp")
         @Operation(summary = "Récupérer l'image splash d'un skin", description = "Retourne l'image splash (grand format) pour un skin spécifique")
         @ApiResponses(value = {
