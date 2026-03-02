@@ -1,38 +1,38 @@
 # Variables
-DC = docker-compose
-MAVEN = ./mvnw
+DC = docker compose
 
-.PHONY: help up down restart logs clean build install
+# Extraction des arguments pour la commande logs
+ifeq (logs,$(firstword $(MAKECMDGOALS)))
+  LOG_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  ifeq ($(LOG_ARGS),)
+    LOG_ARGS = api
+  endif
+  $(eval $(LOG_ARGS):;@:)
+endif
 
-help: ## Show this help message
+.PHONY: help start stop clean test logs
+
+help: ## Affiche ce message d'aide
 	@echo 'Usage:'
 	@echo '  make [target]'
 	@echo ''
 	@echo 'Targets:'
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-up: ## Start the application and database (dettached mode)
-	$(DC) up -d
+start: ## Démarrer l'API et la base de données
+	$(DC) up -d --build
 
-down: ## Stop the application and database
+test: ## Lancer les tests avec Docker (image Maven)
+	docker run --rm -v "$(CURDIR)":/app -w /app maven:3.9.3-eclipse-temurin-17 mvn test
+
+stop: ## Stopper les conteneurs
+	$(DC) stop
+
+down: stop ## Stopper et supprimer les conteneurs
 	$(DC) down
 
-restart: down up ## Restart the application and database
+clean: down ## Supprimer les conteneurs, les volumes de données et les images
+	$(DC) down -v --rmi all
 
-logs: ## Follow logs
-	$(DC) logs -f
-
-build: ## Build the application with Maven
-	$(MAVEN) clean package -DskipTests
-
-rebuild: build ## Rebuild and restart the container
-	$(DC) up -d --build api
-
-clean: down ## Stop services and remove volumes (WARNING: Data loss)
-	$(DC) down -v
-
-install: ## Install dependencies (Maven)
-	$(MAVEN) install -DskipTests
-
-sql-shell: ## Access the database via psql inside the container
-	docker exec -it betterdle-postgres psql -U betterdle -d betterdle
+logs: ## Afficher les logs en direct (par défaut: api). Usage: make logs [service]
+	$(DC) logs -f $(LOG_ARGS)
